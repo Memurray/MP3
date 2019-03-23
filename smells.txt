@@ -1,0 +1,16 @@
+Q1:	-Duplicated code
+	-Duplicated expressions in the same class
+	-Can be refactored by wrapping repeated code into a method that can be run. (Extract method)
+
+Q3:	-This method really doesn't belong to the Nodes class
+	-Feature envy
+	-Moving this method to the class that it invokes
+	-Makes more sense to have Jenkins class have this method and just have nodes invoke the method from jenkins class
+
+Q4:	-Repeated code inside of the same method
+	-Wrap the repeated code into a loop
+	-Add break flag to allow break inside loop to actually break the intended loop
+
+Q6:	-Duplicated code was found inside to two methods in the same test class
+	-Wrap duplicated code into a new method and have each class just call this method
+
