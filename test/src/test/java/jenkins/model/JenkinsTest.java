@@ -271,19 +271,7 @@ public class JenkinsTest {
 
     @Test
     public void testDoScript() throws Exception {
-        j.jenkins.setSecurityRealm(new LegacySecurityRealm());
-        GlobalMatrixAuthorizationStrategy gmas = new GlobalMatrixAuthorizationStrategy() {
-            @Override public boolean hasPermission(String sid, Permission p) {
-                return p == Jenkins.RUN_SCRIPTS ? hasExplicitPermission(sid, p) : super.hasPermission(sid, p);
-            }
-        };
-        gmas.add(Jenkins.ADMINISTER, "alice");
-        gmas.add(Jenkins.RUN_SCRIPTS, "alice");
-        gmas.add(Jenkins.READ, "bob");
-        gmas.add(Jenkins.ADMINISTER, "charlie");
-        j.jenkins.setAuthorizationStrategy(gmas);
-        WebClient wc = j.createWebClient();
-        wc.login("alice");
+        WebClient wc = setupTestConditions();
         wc.goTo("script");
         wc.assertFails("script?script=System.setProperty('hack','me')", HttpURLConnection.HTTP_BAD_METHOD);
         assertNull(System.getProperty("hack"));
@@ -300,9 +288,8 @@ public class JenkinsTest {
         wc.assertFails("script", HttpURLConnection.HTTP_FORBIDDEN);
     }
 
-    @Test
-    public void testDoEval() throws Exception {
-        j.jenkins.setSecurityRealm(new LegacySecurityRealm());
+	private WebClient setupTestConditions() throws Exception {
+		j.jenkins.setSecurityRealm(new LegacySecurityRealm());
         GlobalMatrixAuthorizationStrategy gmas = new GlobalMatrixAuthorizationStrategy() {
             @Override public boolean hasPermission(String sid, Permission p) {
                 return p == Jenkins.RUN_SCRIPTS ? hasExplicitPermission(sid, p) : super.hasPermission(sid, p);
@@ -315,6 +302,12 @@ public class JenkinsTest {
         j.jenkins.setAuthorizationStrategy(gmas);
         WebClient wc = j.createWebClient();
         wc.login("alice");
+		return wc;
+	}
+
+    @Test
+    public void testDoEval() throws Exception {
+    	WebClient wc = setupTestConditions();
         wc.assertFails("eval", HttpURLConnection.HTTP_BAD_METHOD);
         assertEquals("3", eval(wc));
         wc.login("bob");
